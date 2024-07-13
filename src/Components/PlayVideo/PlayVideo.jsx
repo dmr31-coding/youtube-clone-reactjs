@@ -10,8 +10,11 @@ import jack from '../../assets/jack.png'
 import user_profile from '../../assets/user_profile.jpg'
 import { API_KEY, value_converter } from '../../data'
 import moment from 'moment'
+import { useParams } from 'react-router-dom'
 
-const PlayVideo = ({videoId}) => {
+const PlayVideo = () => {
+
+    const {videoId} = useParams();
 
     const [apiData, setApiData] = useState(null);
 
@@ -31,14 +34,14 @@ const PlayVideo = ({videoId}) => {
         await fetch(channelData_url).then(res=>res.json()).then(data=>setChannelData(data.items[0]))
 
         //fetching comment data
-        const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${videoId}&key=${API_KEY}`;
+        const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxResults=50&videoId=${videoId}&key=${API_KEY}`;
         await fetch(comment_url).then(res=>res.json()).then(data=>setCommentData(data.items))
 
     }
 
     useEffect(()=>{
         fetchVideoData();
-    },[])
+    },[videoId])
 
     useEffect(() => {
         fetchOtherData();
@@ -76,13 +79,13 @@ const PlayVideo = ({videoId}) => {
             {commentData.map((item, index) => {
                 return (
                     <div key={index} className="comment">
-                <img src={user_profile} alt="" />
+                <img src={item.snippet.topLevelComment.snippet.authorProfileImageUrl} alt="" />
                 <div>
-                    <h3>Nira Khatri <span>3 days ago</span></h3>
-                    <p>A global computer network providing a variety of information and communication faciliity of interconnected networks using standard communication protocols.</p>
+                    <h3>{item.snippet.topLevelComment.snippet.authorDisplayName} <span>3 days ago</span></h3>
+                    <p>{item.snippet.topLevelComment.snippet.textDisplay}</p>
                     <div className="comment-action">
                         <img src={like} alt="" />
-                        <span>332</span>
+                        <span>{value_converter(item.snippet.topLevelComment.snippet.likeCount)}</span>
                         <img src={dislike} alt="" />
                     </div>
                 </div>
